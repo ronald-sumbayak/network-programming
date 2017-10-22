@@ -69,7 +69,7 @@ class ChatServer extends MultiThreadEchoServer {
                 else {
                     Group group = groups.get (groupName);
                     
-                    if (!group.memberList.contains (client))
+                    if (!group.hasMember (client))
                         client.sendMessage (String.format ("You are not member of this group (%s).", groupName));
                     else
                         group.sendMessage (client, message);
@@ -155,7 +155,7 @@ class ChatServer extends MultiThreadEchoServer {
                     client.sendMessage ("Group does not exists.");
                 else {
                     Group group = groups.get (groupName);
-                    if (!group.isMember (client))
+                    if (!group.hasMember (client))
                         client.sendMessage (String.format ("You are not member of this group (%s).", groupName));
                     else {
                         String msg = group.memberList
@@ -182,13 +182,13 @@ class ChatServer extends MultiThreadEchoServer {
     private class Client extends Thread {
         
         String username;
-        Socket socket;
         
         private List<Group> clientGroups = new ArrayList<> ();
         private List<Client> friendList = new ArrayList<> ();
         private Map<String, Client> friends = new HashMap<> ();
         private BufferedReader is;
         private PrintWriter os;
+        private Socket socket;
         
         Client (Socket socket) {
             try {
@@ -306,43 +306,44 @@ class ChatServer extends MultiThreadEchoServer {
     private class Group {
         
         private Map<String, Client> members = new HashMap<> ();
-        private List<Client> memberList = new ArrayList<> ();
         private String name;
         
-        private Group (String name) {
+        List<Client> memberList = new ArrayList<> ();
+        
+        Group (String name) {
             this.name = name;
         }
         
-        private String buildMessage (Client sender, String msg) {
+        String buildMessage (Client sender, String msg) {
             return String.format ("%s%s",
                                   sender.username,
                                   buildSystemMessage (msg));
         }
         
-        private String buildSystemMessage (String msg) {
+        String buildSystemMessage (String msg) {
             return String.format ("@%s: %s", name, msg);
         }
         
-        private void sendMessage (Client sender, String msg) {
+        void sendMessage (Client sender, String msg) {
             String message = buildMessage (sender, msg);
             for (Client client : memberList)
                 if (client != sender)
                     client.sendMessage (message);
         }
         
-        private void sendSystemMessage (Client sender, String msg) {
+        void sendSystemMessage (Client sender, String msg) {
             String message = buildSystemMessage (msg);
             for (Client client : memberList)
                 if (client != sender)
                     client.sendMessage (message);
         }
         
-        private boolean isMember (Client client) {
+        boolean hasMember (Client client) {
             return members.containsValue (client);
         }
         
-        private void add (Client client) {
-            if (isMember (client)) {
+        void add (Client client) {
+            if (hasMember (client)) {
                 client.sendMessage (String.format ("You already joined the group (%s).", name));
                 return;
             }
@@ -361,8 +362,8 @@ class ChatServer extends MultiThreadEchoServer {
             output.println (buildSystemMessage (msg));
         }
         
-        public void remove (Client client) {
-            if (!isMember (client)) {
+        void remove (Client client) {
+            if (!hasMember (client)) {
                 client.sendMessage (String.format ("You are not member of this group (%s).", name));
                 return;
             }
@@ -383,11 +384,11 @@ class ChatServer extends MultiThreadEchoServer {
     }
     
     private abstract class ReservedMessage {
-        
-        String command;
+    
         String delimiter;
-        
-        private ReservedMessage (String delimiter, String command) {
+        String command;
+    
+        ReservedMessage (String delimiter, String command) {
             this.delimiter = delimiter;
             this.command = command;
         }
