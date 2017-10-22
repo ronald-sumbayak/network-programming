@@ -42,6 +42,7 @@ class ChatServer extends MultiThreadEchoServer {
                                     "    /join [groupname]    - join a group.\n" +
                                     "    /leave [groupname]   - leave a group.\n" +
                                     "    /members [groupname] - display the members of a group.\n" +
+                                    "    /time [username]     - get user local time" +
                                     "    /quit                - quit this chat app.");
             }
         });
@@ -167,6 +168,15 @@ class ChatServer extends MultiThreadEchoServer {
                 }
             }
         });
+        reservedMessages.add (new ReservedMessage ("/", "time") {
+            @Override
+            void onHandle (Client client, String command, String username) {
+                if (!clients.containsKey (username))
+                    client.sendMessage ("User does not exists.");
+                else
+                    clients.get (username).sendMessage (String.format ("/time %s", client.username));
+            }
+        });
     }
     
     @Override
@@ -219,7 +229,7 @@ class ChatServer extends MultiThreadEchoServer {
                 // Notify the user and system, also add it to socket list.
                 String msg = String.format ("%s joined.", username);
                 os.println (msg);
-                os.println (String.format ("Welcome, %s. Type \\commands to for help.", username));
+                os.println (String.format ("Welcome, %s. Type /commands for help.", username));
                 output.println (msg);
                 clients.put (username, this);
                 clientList.add (this);
@@ -227,7 +237,7 @@ class ChatServer extends MultiThreadEchoServer {
                 // request listener loop
                 String request;
                 while ((request = is.readLine ()) != null) {
-                    if (request.equals ("\\quit"))
+                    if (request.equals ("/quit"))
                         break;
                     
                     // find matching command available.
