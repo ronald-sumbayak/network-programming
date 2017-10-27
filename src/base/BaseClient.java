@@ -6,10 +6,11 @@ import java.net.*;
 public abstract class BaseClient {
     
     protected Socket server;
-    protected InetAddress host;
     protected BufferedReader is, input;
     protected PrintWriter os, output;
     protected String request;
+    
+    private InetAddress host;
     
     public BaseClient () {
         this ("localhost");
