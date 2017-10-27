@@ -29,7 +29,7 @@ public abstract class BaseClient {
         }
     }
     
-    protected void connect () {
+    public void connect () {
         connect (80);
     }
     
@@ -48,7 +48,7 @@ public abstract class BaseClient {
         }
     }
     
-    protected void finish () {
+    public void finish () {
         try {
             output.println ("Closing connection...");
             server.close ();

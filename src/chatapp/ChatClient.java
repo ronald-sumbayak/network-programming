@@ -1,28 +1,78 @@
 package chatapp;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.*;
 
 import base.BaseClient;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
 
-class ChatClient extends BaseClient {
+public class ChatClient extends BaseClient {
+    
+    @FXML
+    private ListView<String> messageListView;
+    
+    @FXML
+    private ListView<String> chatListView;
+    
+    @FXML
+    private TextField inputMessage;
+    
+    private Map<String, ObservableList<String>> messages = new HashMap<> ();
+    private ObservableList<String> chats = FXCollections.observableArrayList ();
+    
+    @FXML
+    private void sendMessage () {
+        String msg = inputMessage.getText ();
+        
+        if (msg.startsWith ("@") || msg.startsWith ("#"))
+            putMessage (msg.replaceFirst (" ", " You: "));
+        else
+            putMessage ("@system " + "You: " + msg);
+        
+        os.println (msg);
+        inputMessage.clear ();
+        
+        if (msg.equals ("/quit"))
+            finish ();
+    }
+    
+    private void putMessage (String msg) {
+        String split[], delimiter, room, message;
+        delimiter = String.valueOf (msg.charAt (0));
+        split = msg.split (String.format ("[%s ]", delimiter), 3);
+        room = delimiter + split[1];
+        message = split[2];
+        
+        if (!messages.containsKey (room)) {
+            messages.put (room, FXCollections.observableArrayList ());
+            chats.add (room);
+        }
+        
+        messages.get (room).add (message);
+    }
     
     @Override
     protected void onConnected () {
+        chatListView.setItems (chats);
+        chatListView.getSelectionModel ().selectedItemProperty ().addListener ((observable, oldValue, newValue) -> {
+            messageListView.setItems (messages.get (newValue));
+            inputMessage.clear ();
+        });
+        
         Thread osThread = new Thread (() -> {
             try {
                 while (server.isConnected ()) {
                     String msg = is.readLine ();
+                    if (msg.startsWith ("@") || msg.startsWith ("#"))
+                        Platform.runLater (() -> putMessage (msg));
                     
-                    if (msg.startsWith ("/time")) {
-                        String username = msg.split (" ")[1];
-                        String time = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss").format (new Date ());
-                        os.println (String.format ("@%s My local time is [%s]", username, time));
-                        output.println (String.format ("%s requested your local time.", username));
-                    }
                     else
-                        output.println (msg);
+                        Platform.runLater (() -> putMessage ("@system " + msg));
                 }
             }
             catch (IOException e) {
@@ -30,19 +80,11 @@ class ChatClient extends BaseClient {
                 System.exit (1);
             }
         });
+        
         osThread.start ();
-    
-        try {
-            output.println ("Enter your username!");
-            while ((request = input.readLine ()) != null) {
-                os.println (request);
-                if (request.equals ("/quit"))
-                    break;
-            }
-        }
-        catch (IOException e) {
-            e.printStackTrace (System.out);
-        }
+        while (true)
+            if (!server.isConnected ())
+                break;
     }
     
     public static void main (String[] args) {
