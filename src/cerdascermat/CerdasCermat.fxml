@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane id="AnchorPane" fx:controller="cerdascermat.UjianClient" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2">
+  <children>
+    <BorderPane layoutX="0.0" layoutY="0.0" prefHeight="400.0" prefWidth="600.0">
+      <bottom>
+        <Text id="notice" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" BorderPane.alignment="BOTTOM_CENTER">
+          <font>
+            <Font size="24.0" fx:id="x3" />
+          </font>
+          <BorderPane.margin>
+            <Insets bottom="16.0" left="16.0" right="16.0" />
+          </BorderPane.margin>
+        </Text>
+      </bottom>
+      <center>
+        <VBox alignment="CENTER" prefHeight="300.0" prefWidth="368.0">
+          <children>
+            <Text id="pertanyaan" strokeType="OUTSIDE" strokeWidth="0.0" text="Text">
+              <font>
+                <Font size="18.0" />
+              </font>
+              <VBox.margin>
+                <Insets bottom="16.0" />
+              </VBox.margin>
+            </Text>
+            <Button id="pilihanA" mnemonicParsing="false" text="Button">
+              <font>
+                <Font size="14.0" fx:id="x1" />
+              </font>
+              <VBox.margin>
+                <Insets bottom="4.0" fx:id="x2" />
+              </VBox.margin>
+            </Button>
+            <Button id="pilihanB" font="$x1" mnemonicParsing="false" text="Button" VBox.margin="$x2" />
+            <Button id="pilihanC" font="$x1" mnemonicParsing="false" text="Button" />
+          </children>
+        </VBox>
+      </center>
+      <left>
+        <Text id="counter" font="$x3" strokeType="OUTSIDE" strokeWidth="0.0" text="Text">
+          <BorderPane.margin>
+            <Insets left="16.0" top="16.0" />
+          </BorderPane.margin>
+        </Text>
+      </left>
+      <right>
+        <Text id="name" font="$x3" strokeType="OUTSIDE" strokeWidth="0.0" text="Text">
+          <BorderPane.margin>
+            <Insets right="16.0" top="16.0" />
+          </BorderPane.margin>
+        </Text>
+      </right>
+    </BorderPane>
+  </children>
+</AnchorPane>
