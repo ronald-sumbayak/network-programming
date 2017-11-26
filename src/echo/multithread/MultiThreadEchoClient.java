@@ -11,7 +11,7 @@ public class MultiThreadEchoClient extends BaseClient {
         super ();
     }
     
-    private MultiThreadEchoClient (String host) {
+    protected MultiThreadEchoClient (String host) {
         super (host);
     }
     

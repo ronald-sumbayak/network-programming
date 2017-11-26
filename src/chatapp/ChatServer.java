@@ -34,7 +34,7 @@ public class ChatServer extends MultiThreadEchoServer {
         and don't do anything stupid.
         
         Regards, me.
-         */
+        */
         reservedMessages = new ArrayList<> ();
         reservedMessages.add (new ReservedMessage ("/", "commands") {
             @Override
@@ -47,7 +47,7 @@ public class ChatServer extends MultiThreadEchoServer {
                                           "    /users\t\t\t\t\t- show list of user connected to this chat app.\n" +
                                           "    /add [username]\t\t\t- add user as friend\n" +
                                           "    /remove [username]\t\t- remove user as friend\n" +
-                                          "    /friends\t\t\t- display friend list\n" +
+                                          "    /friends\t\t\t\t- display friend list\n" +
                                           "    /create [groupname]\t\t- create a group.\n" +
                                           "    /join [groupname]\t\t- join a group.\n" +
                                           "    /leave [groupname]\t\t- leave a group.\n" +

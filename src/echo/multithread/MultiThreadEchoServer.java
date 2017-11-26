@@ -34,12 +34,13 @@ public class MultiThreadEchoServer extends BaseServer {
         handler.start ();
     }
     
-    private class ClientHandler extends Thread {
+    protected class ClientHandler extends Thread {
     
-        private BufferedReader is;
-        private PrintWriter os;
-        private String username;
-        private Socket socket;
+        protected BufferedReader is;
+        protected PrintWriter os;
+        
+        public String username;
+        public Socket socket;
         
         public ClientHandler (Socket socket) {
             this.socket = socket;
