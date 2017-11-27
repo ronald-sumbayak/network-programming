@@ -1,6 +1,5 @@
 package cerdascermat;
 
-import chatapp.ChatClient;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -9,26 +8,27 @@ import javafx.stage.Stage;
 
 public class CerdasCermat extends Application {
     
-    private FXMLLoader loader;
+    private UjianClient controller;
     
     @Override
     public void start (Stage primaryStage) throws Exception {
         primaryStage.setTitle ("Cerdas Cermat");
-        
-        loader = new FXMLLoader ();
+    
+        FXMLLoader loader = new FXMLLoader ();
         loader.setLocation (CerdasCermat.class.getResource ("CerdasCermat.fxml"));
         
         AnchorPane rootLayout = loader.load ();
         primaryStage.setScene (new Scene (rootLayout));
         primaryStage.show ();
         
-        new Thread (() -> loader.<UjianClient>getController ().connect ()).start ();
+        controller = loader.getController ();
+        new Thread (() -> controller.connect ()).start ();
     }
     
     @Override
     public void stop () throws Exception {
         super.stop ();
-        loader.<ChatClient>getController ().finish ();
+        controller.finish ();
     }
     
     public static void main (String args[]) {

@@ -1,6 +1,6 @@
 package cerdascermat;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.*;
@@ -9,6 +9,8 @@ import cerdascermat.DBConn.Soal;
 import echo.multithread.MultiThreadEchoServer;
 
 class UjianServer extends MultiThreadEchoServer {
+    
+    private static final int SOAL_INTERVAL = 5;
     
     private List<Peserta> pesertaList = new ArrayList<> ();
     private Map<String, Peserta> pesertas = new HashMap<> ();
@@ -47,18 +49,15 @@ class UjianServer extends MultiThreadEchoServer {
                 while (!text.equals ("mulaiujian"));
                 inUjian = true;
                 
-                broadcast ("Ujian akan dimulai dalam 10 detik");
+                broadcast ("<notice> Ujian akan dimulai dalam 10 detik");
                 ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor ();
                 
                 final int[] counter = {10};
                 service.scheduleAtFixedRate (() -> {
-                    System.out.println ("a");
                     if (counter[0]-- > 1)
-                        broadcast (String.valueOf (counter[0]));
-                    else {
-                        System.out.println ("a");
+                        broadcast ("<counter> " + String.valueOf (counter[0]));
+                    else
                         service.shutdownNow ();
-                    }
                 }, 0, 1, TimeUnit.SECONDS);
                 
                 while (!service.isShutdown ()) {}
@@ -68,14 +67,14 @@ class UjianServer extends MultiThreadEchoServer {
                 e.printStackTrace ();
             }
         }).start ();
-        System.out.println ("siap");
+        
         // keep listening for new connection
         while (true)
             listen ();
     }
     
     private void mulai () {
-        broadcast ("pilih dengan mengetikkan pilihan huruf");
+        broadcast ("<notice> pilih dengan meng-klik pada jawaban");
         soalIndex = -1;
         
         ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor ();
@@ -88,14 +87,26 @@ class UjianServer extends MultiThreadEchoServer {
             System.out.println (soalList.get (soalIndex).idSoal);
             
             Soal soal = soalList.get (soalIndex);
-            String msg = String.format ("%s\na.%s\nb.%s\nc.%s",
-                                        soal.pertanyaan,
-                                        soal.pilihan1, soal.pilihan2, soal.pilihan3);
-            broadcast (msg);
-        }, 0, 5, TimeUnit.SECONDS);
+            broadcast ("<pertanyaan> " + soal.pertanyaan);
+            broadcast ("<pilihanA> " + soal.pilihan1);
+            broadcast ("<pilihanB> " + soal.pilihan2);
+            broadcast ("<pilihanC> " + soal.pilihan3);
+    
+            Timer timer = new Timer ();
+            TimerTask task = new TimerTask () {
+                int counter = SOAL_INTERVAL;
+                @Override
+                public void run () {
+                    broadcast ("<counter> " + String.valueOf (counter));
+                    counter--;
+                    if (counter == 0)
+                        timer.cancel ();
+                }
+            };
+            timer.scheduleAtFixedRate (task, 0, 1000);
+        }, 0, SOAL_INTERVAL, TimeUnit.SECONDS);
         
         while (!service.isShutdown ()) {}
-        System.out.println ("service shut down");
         inUjian = false;
         calculateScore ();
         for (Peserta peserta : pesertaList)
@@ -109,22 +120,43 @@ class UjianServer extends MultiThreadEchoServer {
             for (Soal soal : soalList)
                 if (conn.getJawaban (peserta.username, soal.idSoal).equals (soal.jawaban))
                     score++;
-            peserta.send (String.format ("Jumlah jawaban benar: %d", score));
-            peserta.send ("Terima kasih sudah bermain :D");
+            peserta.send (String.format ("<notice><end> Jumlah jawaban benar: %d\nTerima kasih sudah bermain :D", score));
         }
     }
     
-    class Peserta extends ClientHandler {
+    class Peserta extends Thread{
+    
+        protected BufferedReader is;
+        protected PrintWriter os;
+        
+        public String username;
+        public Socket socket;
         
         private List<Integer> soalDijawab = new ArrayList<> ();
     
         public Peserta (Socket socket) {
-            super (socket);
+            this.socket = socket;
+    
+            try {
+                is = new BufferedReader (new InputStreamReader (socket.getInputStream ()));
+                os = new PrintWriter (socket.getOutputStream (), true);
+                os.println ("<notice> Username: ");
+                username = is.readLine ();
+                os.println (String.format ("<notice> Welcome, %s.", username));
+                output.println (String.format ("%s (%s:%d) connected.",
+                                               username,
+                                               socket.getInetAddress (),
+                                               socket.getPort ()));
+            }
+            catch (IOException | NoSuchElementException e) {
+                e.printStackTrace (System.err);
+                close (socket);
+            }
+            
             if (!inUjian) {
-                System.out.println ("terdaftar");
                 pesertaList.add (this);
                 pesertas.put (username, this);
-                os.println ("Mohon tunggu sampai ujian dimulai");
+                os.println ("<notice> Mohon tunggu sampai ujian dimulai");
             }
         }
         
@@ -140,13 +172,13 @@ class UjianServer extends MultiThreadEchoServer {
                     inputUser = is.readLine ();
                     if (inUjian) {
                         if (soalDijawab.contains (soalIndex))
-                            send ("Kamu sudah menjawab soal ini :D");
+                            send ("<notice> Kamu sudah menjawab soal ini :D");
                         else if (inputUser.trim ().length () > 1)
-                            send ("Jawab dengan mengetikkan pilihan huruf jawaban");
+                            send ("<notice> Jawab dengan mengetikkan pilihan huruf jawaban");
                         else {
                             conn.insertJawaban (username, soalList.get (soalIndex).idSoal, inputUser);
                             soalDijawab.add (soalIndex);
-                            send ("Jawaban disimpan");
+                            send ("<notice> Jawaban disimpan");
                         }
                     }
                 }
