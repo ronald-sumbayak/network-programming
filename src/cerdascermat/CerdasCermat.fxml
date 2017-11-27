@@ -8,11 +8,11 @@
 <?import javafx.scene.paint.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane id="AnchorPane" fx:controller="cerdascermat.UjianClient" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2">
+<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="cerdascermat.UjianClient">
   <children>
     <BorderPane layoutX="0.0" layoutY="0.0" prefHeight="400.0" prefWidth="600.0">
       <bottom>
-        <Text id="notice" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" BorderPane.alignment="BOTTOM_CENTER">
+        <Text id="" fx:id="notice" strokeType="OUTSIDE" strokeWidth="0.0" text="" visible="false" BorderPane.alignment="BOTTOM_CENTER">
           <font>
             <Font size="24.0" fx:id="x3" />
           </font>
@@ -22,9 +22,9 @@
         </Text>
       </bottom>
       <center>
-        <VBox alignment="CENTER" prefHeight="300.0" prefWidth="368.0">
+        <VBox fx:id="vboxSoal" alignment="CENTER" prefHeight="227.0" prefWidth="478.0" visible="false">
           <children>
-            <Text id="pertanyaan" strokeType="OUTSIDE" strokeWidth="0.0" text="Text">
+            <Text id="" fx:id="pertanyaan" strokeType="OUTSIDE" strokeWidth="0.0" text="" visible="false">
               <font>
                 <Font size="18.0" />
               </font>
@@ -32,7 +32,7 @@
                 <Insets bottom="16.0" />
               </VBox.margin>
             </Text>
-            <Button id="pilihanA" mnemonicParsing="false" text="Button">
+            <Button id="" fx:id="pilihanA" mnemonicParsing="false" onAction="#pilihA" text="Button" visible="false">
               <font>
                 <Font size="14.0" fx:id="x1" />
               </font>
@@ -40,25 +40,44 @@
                 <Insets bottom="4.0" fx:id="x2" />
               </VBox.margin>
             </Button>
-            <Button id="pilihanB" font="$x1" mnemonicParsing="false" text="Button" VBox.margin="$x2" />
-            <Button id="pilihanC" font="$x1" mnemonicParsing="false" text="Button" />
+            <Button id="" fx:id="pilihanB" font="$x1" mnemonicParsing="false" onAction="#pilihB" text="Button" visible="false" VBox.margin="$x2" />
+            <Button id="" fx:id="pilihanC" font="$x1" mnemonicParsing="false" onAction="#pilihC" text="Button" visible="false" />
           </children>
         </VBox>
       </center>
       <left>
-        <Text id="counter" font="$x3" strokeType="OUTSIDE" strokeWidth="0.0" text="Text">
+        <Text id="" fx:id="counter" disable="false" font="$x3" strokeType="OUTSIDE" strokeWidth="0.0" text="" visible="false">
           <BorderPane.margin>
             <Insets left="16.0" top="16.0" />
           </BorderPane.margin>
         </Text>
       </left>
       <right>
-        <Text id="name" font="$x3" strokeType="OUTSIDE" strokeWidth="0.0" text="Text">
+        <Text id="" fx:id="name" font="$x3" strokeType="OUTSIDE" strokeWidth="0.0" text="" visible="false">
           <BorderPane.margin>
             <Insets right="16.0" top="16.0" />
           </BorderPane.margin>
         </Text>
       </right>
+      <top>
+        <BorderPane fx:id="usernameContainer" prefHeight="83.0" prefWidth="600.0">
+          <center>
+            <TextField fx:id="usernameField" onAction="#applyUsername" prefWidth="200.0" promptText="Username" />
+          </center>
+          <left>
+            <Pane prefHeight="200.0" prefWidth="200.0" />
+          </left>
+          <padding>
+            <Insets top="16.0" />
+          </padding>
+          <right>
+            <Pane prefHeight="200.0" prefWidth="200.0" />
+          </right>
+          <top>
+            <Label fx:id="usernameLabel" font="$x3" text="Username" BorderPane.alignment="TOP_CENTER" />
+          </top>
+        </BorderPane>
+      </top>
     </BorderPane>
   </children>
 </AnchorPane>
