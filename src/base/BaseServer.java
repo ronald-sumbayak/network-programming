@@ -65,7 +65,7 @@ public abstract class BaseServer {
         }
     }
     
-    protected void finish () {
+    public void finish () {
         try {
             output.println ("Shutting down server...");
             serverSocket.close ();

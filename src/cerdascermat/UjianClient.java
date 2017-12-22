@@ -92,7 +92,7 @@ public class UjianClient extends MultiThreadEchoClient {
     
     @Override
     public void connect () {
-        super.connect (3984);
+        super.connect (50000);
     }
     
     @Override

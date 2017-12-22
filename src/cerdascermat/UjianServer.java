@@ -7,8 +7,13 @@ import java.util.concurrent.*;
 
 import cerdascermat.DBConn.Soal;
 import echo.multithread.MultiThreadEchoServer;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.control.ListView;
 
-class UjianServer extends MultiThreadEchoServer {
+public class UjianServer extends MultiThreadEchoServer {
     
     private static final int SOAL_INTERVAL = 5;
     
@@ -19,8 +24,42 @@ class UjianServer extends MultiThreadEchoServer {
     private DBConn conn;
     private int soalIndex;
     
+    @FXML
+    private ListView<String> pesertaListView;
+    private ObservableList<String> pesertaListItems = FXCollections.observableArrayList ();
+    
+    @FXML
+    private Button mulaiButton;
+    
+    @FXML
+    private void initialize () {
+        pesertaListView.setItems (pesertaListItems);
+    }
+    
+    @FXML
+    private void mulaiUjian () {
+        mulaiButton.setDisable (true);
+        new Thread (() -> {
+            inUjian = true;
+    
+            broadcast ("<notice> Ujian akan dimulai dalam 10 detik");
+            ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor ();
+    
+            final int[] counter = {10};
+            service.scheduleAtFixedRate (() -> {
+                if (counter[0]-- > 1)
+                    broadcast ("<counter> " + String.valueOf (counter[0]));
+                else
+                    service.shutdownNow ();
+            }, 0, 1, TimeUnit.SECONDS);
+    
+            while (!service.isShutdown ()) {}
+            mulai ();
+        });
+    }
+    
     public UjianServer () {
-        this (80);
+        this (50000);
     }
     
     public UjianServer (int port) {
@@ -42,32 +81,6 @@ class UjianServer extends MultiThreadEchoServer {
     
     @Override
     protected void start () {
-        new Thread (() -> {
-            String text;
-            try {
-                do { System.out.println ("menunggu"); text = input.readLine (); }
-                while (!text.equals ("mulaiujian"));
-                inUjian = true;
-                
-                broadcast ("<notice> Ujian akan dimulai dalam 10 detik");
-                ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor ();
-                
-                final int[] counter = {10};
-                service.scheduleAtFixedRate (() -> {
-                    if (counter[0]-- > 1)
-                        broadcast ("<counter> " + String.valueOf (counter[0]));
-                    else
-                        service.shutdownNow ();
-                }, 0, 1, TimeUnit.SECONDS);
-                
-                while (!service.isShutdown ()) {}
-                mulai ();
-            }
-            catch (IOException e) {
-                e.printStackTrace ();
-            }
-        }).start ();
-        
         // keep listening for new connection
         while (true)
             listen ();
@@ -147,6 +160,7 @@ class UjianServer extends MultiThreadEchoServer {
                                                username,
                                                socket.getInetAddress (),
                                                socket.getPort ()));
+                pesertaListItems.add (username);
             }
             catch (IOException | NoSuchElementException e) {
                 e.printStackTrace (System.err);
